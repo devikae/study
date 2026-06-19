@@ -10,7 +10,8 @@ public class NumberValue implements Comparable<NumberValue> {
 
     private final int value;
 
-    private static final NumberValue[] NUMS = new NumberValue[46];
+//    private static final NumberValue[] NUMS = new NumberValue[46];
+    private static final NumberValue[] NUMS = new NumberValue[MAX_NUM + 1];
 
     static {
         for (int i = MIN_NUM; i <= MAX_NUM; i++) {

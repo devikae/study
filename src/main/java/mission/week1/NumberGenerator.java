@@ -8,17 +8,14 @@ import java.util.Set;
 
 public class NumberGenerator {
 
-    private static final int SIZE = 6;
+    public static final int SIZE = 6;
 
     public NumberTicket run(){
 
         Set<NumberValue> lotto = new HashSet<>();
 
-        while (lotto.size() < 6){
-            int random = (int) (Math.random() * 45) + 1;
-
-            lotto.add(NumberValue.getInstance(random));
-
+        while (lotto.size() < SIZE){
+            lotto.add(NumberValue.getInstance((int) (Math.random() * 45) + 1));
         }
 
         return new NumberTicket(lotto);

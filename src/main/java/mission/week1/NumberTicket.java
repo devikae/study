@@ -9,8 +9,8 @@ public class NumberTicket {
     private final Set<NumberValue> numbers;
 
     public NumberTicket(Set<NumberValue> numbers) {
-        if (numbers.size() != 6) {
-            throw new IllegalArgumentException("6개가 아닙니다.");
+        if (numbers.size() != NumberGenerator.SIZE) {
+            throw new IllegalArgumentException(NumberGenerator.SIZE + "개가 아닙니다.");
         }
         this.numbers = new TreeSet<>(numbers);
     }
