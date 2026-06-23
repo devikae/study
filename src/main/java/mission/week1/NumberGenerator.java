@@ -10,9 +10,7 @@ public class NumberGenerator {
 
     public static final int SIZE = 6;
 
-    public NumberTicket run(){
-
-        Set<NumberValue> lotto = new HashSet<>();
+    public NumberTicket run(Set<NumberValue> lotto){
 
         while (lotto.size() < SIZE){
             lotto.add(NumberValue.getInstance((int) (Math.random() * 45) + 1));

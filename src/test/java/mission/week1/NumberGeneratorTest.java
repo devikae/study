@@ -3,6 +3,8 @@ package mission.week1;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -13,7 +15,7 @@ class NumberGeneratorTest {
     void generatorCreatesSixNumbers() {
         NumberGenerator generator = new NumberGenerator();
 
-        NumberTicket ticket = generator.run();
+        NumberTicket ticket = generator.run(new HashSet<>());
 
         assertEquals(6, ticket.getNumbers().size());
     }
@@ -23,7 +25,7 @@ class NumberGeneratorTest {
     void generatorCreatesNumbersBetween1And45() {
         NumberGenerator generator = new NumberGenerator();
 
-        NumberTicket ticket = generator.run();
+        NumberTicket ticket = generator.run(new HashSet<>());
 
         for (NumberValue number : ticket.getNumbers()) {
             assertTrue(number.getValue() >= 1);
@@ -37,7 +39,7 @@ class NumberGeneratorTest {
         NumberGenerator generator = new NumberGenerator();
 
         for (int i = 0; i < 100; i++) {
-            NumberTicket ticket = generator.run();
+            NumberTicket ticket = generator.run(new HashSet<>());
 
             assertEquals(6, ticket.getNumbers().size());
 

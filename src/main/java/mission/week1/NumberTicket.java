@@ -18,4 +18,5 @@ public class NumberTicket {
     public Set<NumberValue> getNumbers() {
         return Collections.unmodifiableSet(this.numbers);
     }
+
 }

@@ -4,6 +4,8 @@ import mission.week1.NumberTicket;
 import mission.week1.NumberValue;
 import mission.week1.NumberGenerator;
 
+import java.util.HashSet;
+
 public class Main {
     public static void main(String[] args) {
 
@@ -11,7 +13,7 @@ public class Main {
 
         System.out.println("========== 로또 번호 발권 결과 ==========");
         for (int i = 0; i < 5; i++) {
-            NumberTicket ticket = generator.run();
+            NumberTicket ticket = generator.run(new HashSet<>());
 
             for (NumberValue number : ticket.getNumbers()) {
 

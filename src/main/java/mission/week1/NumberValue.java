@@ -5,8 +5,8 @@ package mission.week1;
 // 같은 값이면 같은 객체로 판단해야함.
 
 public class NumberValue implements Comparable<NumberValue> {
-    private static final int MIN_NUM = 1;
-    private static final int MAX_NUM = 45;
+    public static final int MIN_NUM = 1;
+    public static final int MAX_NUM = 45;
 
     private final int value;
 
