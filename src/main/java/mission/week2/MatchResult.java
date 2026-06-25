@@ -1,80 +1,60 @@
 package mission.week2;
 
-import mission.week1.NumberGenerator;
-import mission.week1.NumberTicket;
-import mission.week1.NumberValue;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-// 단순 숫자로 결과를 반환할 것인가
-// 결과도 의미 있는 객체로 만들 것인가
-// 테스트하기 쉬운 구조인가
 public class MatchResult {
 
-    private final NumberTicket winningNumber;
-    private NumberValue bonusNumber = null;
+    private final int ticketNumber;
+    private final Rank rank;
 
-    private final int FIRST = 6;
-    private final int SECOND_THIRD = 5;
-    private final int FOURTH = 4;
-    private final int FIFTH = 3;
-
-
-    public MatchResult() {
-        NumberGenerator generator = new NumberGenerator();
-
-        this.winningNumber = generator.run(new HashSet<>());
-
-        Set<NumberValue> winningNumbers = winningNumber.getNumbers();
-        this.bonusNumber = winningNumbers.stream().findAny().get();
-
+    public MatchResult(int ticketNumber, Rank rank) {
+        this.ticketNumber = ticketNumber;
+        this.rank = rank;
     }
 
-    MatchResult(NumberTicket winningNumber, NumberValue bonusNumber) {
-        this.winningNumber = winningNumber;
-        this.bonusNumber = bonusNumber;
+    public int getTicketNumber() {
+        return ticketNumber;
     }
 
-    public void numberMatch(List<NumberTicket> tickets){
+    public Rank getRank() {
+        return rank;
+    }
 
-        for(int i = 0; i<tickets.size(); i++){
-            NumberTicket myTicket = tickets.get(i);
-            Set<NumberValue> matchSet = new HashSet<>(myTicket.getNumbers());
+    public enum Rank {
+        FIRST("1등"),
+        SECOND("2등"),
+        THIRD("3등"),
+        FOURTH("4등"),
+        FIFTH("5등"),
+        NONE("낙첨");
 
-            boolean haveBonus = matchSet.contains(bonusNumber);
+        private static final int FIRST_MATCH_COUNT = 6;
+        private static final int SECOND_OR_THIRD_MATCH_COUNT = 5;
+        private static final int FOURTH_MATCH_COUNT = 4;
+        private static final int FIFTH_MATCH_COUNT = 3;
 
-            matchSet.retainAll(winningNumber.getNumbers());
+        private final String displayName;
 
-            int matchCount = matchSet.size();
-            String result = "낙첨";
+        Rank(String displayName) {
+            this.displayName = displayName;
+        }
 
-            if(matchCount == FIRST){
-                result = "1등";
-            }else if(matchCount == SECOND_THIRD){
-                result = haveBonus ? "2등" : "3등";
-            }else if(matchCount == FOURTH){
-                result = "4등";
-            }else if(matchCount == FIFTH){
-                result = "5등";
+        public static Rank from(int matchCount, boolean hasBonus) {
+            if (matchCount == FIRST_MATCH_COUNT) {
+                return FIRST;
             }
-
-            System.out.println(i+1 + "번 : " +result);
-
+            if (matchCount == SECOND_OR_THIRD_MATCH_COUNT) {
+                return hasBonus ? SECOND : THIRD;
+            }
+            if (matchCount == FOURTH_MATCH_COUNT) {
+                return FOURTH;
+            }
+            if (matchCount == FIFTH_MATCH_COUNT) {
+                return FIFTH;
+            }
+            return NONE;
         }
 
-    }
-
-    public void getWinningNumber(){
-        System.out.println("============당첨 번호==============");
-        System.out.println("⭐Bonus number: " + bonusNumber.getValue() + "⭐");
-
-        for(NumberValue num : winningNumber.getNumbers()){
-            System.out.print(num.getValue() + " ");
+        public String getDisplayName() {
+            return displayName;
         }
-
-        System.out.println("\n=================================");
     }
-
 }
