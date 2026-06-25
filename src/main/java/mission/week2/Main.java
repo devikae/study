@@ -26,7 +26,6 @@ public class Main {
                 defaultBuy = 1;
             }
         } catch (Exception e) {
-            // 숫자가 아니거나 공백 등 '좆같은 거' 입력하면 예외 터지면서 자연스럽게 1장이 됩니다.
             System.out.println("[알림] 올바르지 않은 입력으로 인해 1장만 구매합니다.");
         }
 
