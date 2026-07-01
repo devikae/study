@@ -40,7 +40,7 @@ public class Main {
             }
 
         }else {
-            throw new RuntimeException("different results");
+            throw new IllegalStateException("for and stream counting results are different");
         }
 
 
