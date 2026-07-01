@@ -11,24 +11,39 @@ import java.util.Map;
 public class Main {
     public static void main(String[] args) {
 
+        // 로또 생성
         NumberGenerator generator = new NumberGenerator();
+        List<NumberTicket> tickets = generator.makeTickets(1_000_000);
 
-        List<NumberTicket> tickets = generator.makeTickets(100_000);
+        // for 성능 측정
+        PerformanceComparator forResult = new PerformanceComparator();
+        forResult.measure(PerformanceComparator.CountType.FOR, tickets);
 
-        PerformanceComparator performanceComparator = new PerformanceComparator();
-        double duration = performanceComparator.getDuration(PerformanceComparator.Status.FOR, tickets);
-        System.out.println("for : " + duration);
+        // stream 성능 측정
+        PerformanceComparator streamResult = new PerformanceComparator();
+        streamResult.measure(PerformanceComparator.CountType.STREAM, tickets);
 
-        duration = performanceComparator.getDuration(PerformanceComparator.Status.STREAM_PLUS_LIST_SORT, tickets);
-        System.out.println("Stream(stream + List.sort) : " + duration);
+        // 두 map의 결과가 같은지
+        boolean sameResult = forResult.getStats().equals(streamResult.getStats());
 
-        duration = performanceComparator.getDuration(PerformanceComparator.Status.STREAM_SORT, tickets);
-        System.out.println("Stream(stream sorted O) : " + duration);
+        if(sameResult) {
+            System.out.println("for performance: " + forResult.getDuration() + "ms");
+            System.out.println("Stream performance: " + streamResult.getDuration() + "ms");
 
-//        for (Map.Entry<NumberValue, Integer> ticket : sortedTicketsByFor) {
-//            System.out.println("로또 번호: " + ticket.getKey().getValue() + " // 출현 빈도: " + ticket.getValue() + "회");
-//        }
-//        System.out.println("==========================================================================");
+            // 정렬 및 TOP5
+            TopValueFinder valueFinder = new TopValueFinder();
+            List<Map.Entry<NumberValue, Integer>> top5 = valueFinder.findTop(streamResult.getStats(), 5);
+
+            // top5 출력
+            for(Map.Entry<NumberValue, Integer> entry : top5) {
+                System.out.println(entry.getKey().getValue() + "번 : " + entry.getValue() + "회");
+            }
+
+        }else {
+            throw new RuntimeException("different results");
+        }
+
+
 
 
     }

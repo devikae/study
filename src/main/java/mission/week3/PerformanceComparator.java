@@ -1,55 +1,49 @@
 package mission.week3;
 
-import mission.week1.NumberGenerator;
 import mission.week1.NumberTicket;
 import mission.week1.NumberValue;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+
+// 측정만
 public class PerformanceComparator {
 
-    long startTime = 0;
-    long endTime = 0;
-    double duration = 0;
+    private double duration;
+    private Map<NumberValue, Integer> countedMap;
 
-    public enum Status {
+    enum CountType{
         FOR,
-        STREAM_PLUS_LIST_SORT,
-        STREAM_SORT
+        STREAM
     }
 
-    public double getDuration(Status status, List<NumberTicket> tickets) {
-        FrequencyCounter stats = new FrequencyCounter();
-
-        List<Map.Entry<NumberValue, Integer>> ticketList = new ArrayList<>();
-
-        if(status == Status.FOR){
-            startTime = System.nanoTime();
-            ticketList = stats.computeStatsFor(tickets);
-            endTime = System.nanoTime();
-
-        }else if(status == Status.STREAM_PLUS_LIST_SORT){
-            startTime = System.nanoTime();
-            ticketList = stats.computeStatsStreamSameLogic(tickets);
-            endTime = System.nanoTime();
-
-        }else if(status == Status.STREAM_SORT){
-            startTime = System.nanoTime();
-            ticketList = stats.computeStatsStreamSorted(tickets);
-            endTime = System.nanoTime();
-
+    public void measure(CountType type, List<NumberTicket> tickets) {
+        if (type == null) {
+            throw new IllegalArgumentException("countType must not be null");
         }
 
-        duration = (endTime - startTime)/1_000_000.0;
+        FrequencyCounter counter = new FrequencyCounter();
+        countedMap = counter.initializeStatistics();
 
+        long startTime = System.nanoTime();
+
+        if (type == CountType.FOR) {
+            counter.countByFor(tickets, countedMap);
+        } else if (type == CountType.STREAM) {
+            counter.countByStream(tickets, countedMap);
+        }
+
+        long endTime = System.nanoTime();
+        duration = (endTime - startTime) / 1_000_000.0;
+    }
+
+    public double getDuration() {
         return duration;
     }
 
-    // TODO
-    // 요구사항 3. 반복문으로 값별 등장 횟수를 계산합니다.
-    // 같은 tickets를 넣는다고 해서 결과가 같다는 보장은 “로직이 맞을 때만” 성립
-    // tickets가 동일한지 확인
+    public Map<NumberValue, Integer> getStats() {
+        return countedMap;
+    }
 
 }
