@@ -48,6 +48,10 @@ public class FrequencyCounter {
             throw new IllegalArgumentException("ticketList must not be null");
         }
 
+        if (statistics == null || statistics.isEmpty()) {
+            throw new IllegalArgumentException("statistics must not be null");
+        }
+
         for (int i = NumberValue.MIN_NUM; i <= NumberValue.MAX_NUM; i++) {
             NumberValue number = NumberValue.getInstance(i);
             if (!statistics.containsKey(number)) {

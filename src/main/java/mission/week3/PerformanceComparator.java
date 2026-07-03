@@ -3,6 +3,7 @@ package mission.week3;
 import mission.week1.NumberTicket;
 import mission.week1.NumberValue;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public class PerformanceComparator {
     }
 
     public Map<NumberValue, Integer> getStats() {
-        return countedMap;
+        return Collections.unmodifiableMap(countedMap);
     }
 
 }

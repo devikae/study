@@ -15,13 +15,17 @@ public class Main {
         NumberGenerator generator = new NumberGenerator();
         List<NumberTicket> tickets = generator.makeTickets(1_000_000);
 
+        // stream 성능 측정
+        PerformanceComparator streamResult = new PerformanceComparator();
+        streamResult.measure(PerformanceComparator.CountType.STREAM, tickets);
+
         // for 성능 측정
         PerformanceComparator forResult = new PerformanceComparator();
         forResult.measure(PerformanceComparator.CountType.FOR, tickets);
 
         // stream 성능 측정
-        PerformanceComparator streamResult = new PerformanceComparator();
-        streamResult.measure(PerformanceComparator.CountType.STREAM, tickets);
+//        PerformanceComparator streamResult = new PerformanceComparator();
+//        streamResult.measure(PerformanceComparator.CountType.STREAM, tickets);
 
         // 두 map의 결과가 같은지
         boolean sameResult = forResult.getStats().equals(streamResult.getStats());
