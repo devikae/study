@@ -25,7 +25,7 @@ public class NumberValue implements Comparable<NumberValue> {
 
     public static NumberValue getInstance(int num) {
         if (num < MIN_NUM || num > MAX_NUM) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(MIN_NUM + "~" + MAX_NUM + " 범위의 숫자만 입력할 수 있습니다.");
         }
         return NUMS[num];
     }
@@ -39,4 +39,3 @@ public class NumberValue implements Comparable<NumberValue> {
         return Integer.compare(this.value, other.value);
     }
 }
-

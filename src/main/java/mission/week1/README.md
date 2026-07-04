@@ -50,3 +50,6 @@
 - 매직넘버 자주 사용, 수정 후 commit 했음
 - 동등성 판단을 어떻게 할까 고민한 것 처럼, 컬렉션 선택쪽에서도 조금 더 고민을 해보는게 좋을 것 같다. 
 - 너무 직관적으로 중복제거? -> HashSet 정렬? -> TreeSet 1차원적으로 다른 선택지가 있었을 수도 있는데 바로 선택해서 씀.
+- MatchResult는 결과를 표현하는 객체로 두고, 비교 로직은 LottoMatcher 객체로 분리
+- getWinningNumber 메서드명 변경 저 메서드는 void인데 get으로 시작 -> printWinningNumber
+

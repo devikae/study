@@ -2,3 +2,4 @@ out/
 *.class
 build/
 target/
+src/training/
