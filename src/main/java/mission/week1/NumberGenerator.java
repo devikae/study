@@ -1,5 +1,7 @@
 package mission.week1;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 // 유효한 값 6개를 생성
@@ -17,6 +19,22 @@ public class NumberGenerator {
         }
 
         return new NumberTicket(lotto);
+    }
+
+    public List<NumberTicket> makeTickets(int ea){
+
+        if (ea < 0) {
+            throw new IllegalArgumentException("티켓 개수는 0 이상이어야 합니다.");
+        }
+
+        List<NumberTicket> tickets = new ArrayList<>(ea);
+
+        for(int i = 1; i <= ea; i++){
+            NumberTicket ticket = run(new HashSet<>());
+            tickets.add(ticket);
+        }
+
+        return tickets;
     }
 
 }
