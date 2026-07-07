@@ -13,7 +13,7 @@ public class Main {
 
         System.out.println("========== 로또 번호 발권 결과 ==========");
         for (int i = 0; i < 5; i++) {
-            NumberTicket ticket = generator.run(new HashSet<>());
+            NumberTicket ticket = generator.makeTicket(new HashSet<>());
 
             for (NumberValue number : ticket.getNumbers()) {
 
