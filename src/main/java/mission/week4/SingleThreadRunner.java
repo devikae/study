@@ -1,17 +1,24 @@
 package mission.week4;
 
+import java.util.List;
 import java.util.concurrent.*;
 
 
 public class SingleThreadRunner implements ThreadRunner {
 
     @Override
-    public void execute(Runnable task) {
+    public void execute(List<Runnable> tasks) {
+
+        validateTasks(tasks);
+
+        if (tasks == null || tasks.isEmpty()) {
+            throw new IllegalArgumentException("실행할 작업은 1개 이상이어야 합니다.");
+        }
 
         ExecutorService executorService = Executors.newSingleThreadExecutor();
 
         try {
-            Future<?> future = executorService.submit(task);
+            Future<?> future = executorService.submit(tasks.get(0));
             future.get();
 
         } catch (InterruptedException e) {
