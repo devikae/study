@@ -5,159 +5,157 @@ import mission.week1.NumberTicket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Main {
     public static void main(String[] args) {
 
-        final int MAKE_TICKET_COUNT = 1_000_000;
-
-        List<NumberTicket> tickets =  new ArrayList<>(MAKE_TICKET_COUNT);
+        final int MAKE_TICKET_COUNT = 10_000_000;
 
         TaskFactory taskFactory = new TaskFactory();
-        List<Runnable> makeTicketTask = new ArrayList<>();
-        makeTicketTask.add(taskFactory.makeTicketTask(tickets, MAKE_TICKET_COUNT));
-
         PerformanceMeasurer performanceMeasurer = new PerformanceMeasurer();
-        SingleThreadRunner singleThreadRunner = new SingleThreadRunner();
-
-        double duration = performanceMeasurer.measure(() -> {
-            singleThreadRunner.execute(makeTicketTask);
-        });
-
         ResultValidator resultValidator = new ResultValidator();
-        boolean isValid = resultValidator.isValid(tickets, MAKE_TICKET_COUNT);
+        SingleThreadRunner singleThreadRunner = new SingleThreadRunner();
+        MultiThreadRunner multiThreadRunner = new MultiThreadRunner();
+
+        try {
+            runSingleThreadExperiment(MAKE_TICKET_COUNT, taskFactory, performanceMeasurer, resultValidator, singleThreadRunner);
+            runUnsafeSharedListExperiment(MAKE_TICKET_COUNT, taskFactory, performanceMeasurer, resultValidator, multiThreadRunner);
+            runSynchronizedSharedListExperiment(MAKE_TICKET_COUNT, taskFactory, performanceMeasurer, resultValidator, multiThreadRunner);
+            runAvoidSharedStateExperiment(MAKE_TICKET_COUNT, taskFactory, performanceMeasurer, resultValidator, multiThreadRunner);
+        } finally {
+            SingleThreadRunner.shutdown();
+            MultiThreadRunner.shutdown();
+        }
+    }
+
+    private static void runSingleThreadExperiment(
+            int ticketCount,
+            TaskFactory taskFactory,
+            PerformanceMeasurer performanceMeasurer,
+            ResultValidator resultValidator,
+            SingleThreadRunner singleThreadRunner
+    ) {
+        List<NumberTicket> tickets = new ArrayList<>(ticketCount);
+        List<Runnable> makeTicketTask = new ArrayList<>();
+        makeTicketTask.add(taskFactory.makeTicketTask(tickets, ticketCount));
+
+        ExecutionDuration duration = performanceMeasurer.measure(() -> singleThreadRunner.execute(makeTicketTask));
+        boolean isValid = resultValidator.isValid(tickets, ticketCount);
 
         PerformanceResult performanceResult = new PerformanceResult(
                 "single thread",
                 duration,
-                MAKE_TICKET_COUNT,
+                ticketCount,
                 tickets.size(),
                 isValid,
                 singleThreadRunner
         );
 
         System.out.println(performanceResult.getResult());
+    }
 
+    private static void runUnsafeSharedListExperiment(
+            int ticketCount,
+            TaskFactory taskFactory,
+            PerformanceMeasurer performanceMeasurer,
+            ResultValidator resultValidator,
+            MultiThreadRunner multiThreadRunner
+    ) {
 
-        int threadCount = 4;
-        int countPerThread = MAKE_TICKET_COUNT / threadCount;
+        int taskCount = multiThreadRunner.getRecommendedTaskCount(ticketCount);
+        List<NumberTicket> sharedTickets = new ArrayList<>(ticketCount);
+        List<Runnable> sharedTicketTasks = new ArrayList<>(taskCount);
 
-        List<NumberTicket> sharedTickets = new ArrayList<>(MAKE_TICKET_COUNT);
-        List<Runnable> sharedTicketTasks = new ArrayList<>(threadCount);
-
-        for (int i = 0; i < threadCount; i++) {
-            sharedTicketTasks.add(taskFactory.makeTicketTask(sharedTickets, countPerThread));
+        for (int i = 0; i < taskCount; i++) {
+            sharedTicketTasks.add(taskFactory.makeTicketTask(sharedTickets, workCountFor(i, taskCount, ticketCount)));
         }
 
-        MultiThreadRunner multiThreadRunner = new MultiThreadRunner();
-
-        double sharedDuration = performanceMeasurer.measure(() -> {
-            multiThreadRunner.execute(sharedTicketTasks);
-        });
-
-        boolean sharedIsValid = resultValidator.isValid(sharedTickets, MAKE_TICKET_COUNT);
+        ExecutionDuration sharedDuration = performanceMeasurer.measure(() -> multiThreadRunner.execute(sharedTicketTasks));
+        boolean sharedIsValid = resultValidator.isValid(sharedTickets, ticketCount);
 
         PerformanceResult sharedResult = new PerformanceResult(
                 "multi thread not control concurrency",
                 sharedDuration,
-                MAKE_TICKET_COUNT,
+                ticketCount,
                 sharedTickets.size(),
                 sharedIsValid,
                 multiThreadRunner
         );
 
         System.out.println(sharedResult.getResult());
+    }
 
+    private static void runSynchronizedSharedListExperiment(
+            int ticketCount,
+            TaskFactory taskFactory,
+            PerformanceMeasurer performanceMeasurer,
+            ResultValidator resultValidator,
+            MultiThreadRunner multiThreadRunner
+    ) {
+        int taskCount = multiThreadRunner.getRecommendedTaskCount(ticketCount);
+        List<NumberTicket> synchronizedAddTickets = new ArrayList<>(ticketCount);
+        List<Runnable> synchronizedTicketTasks = new ArrayList<>(taskCount);
 
-        // task 에서 add() 할 때 synchronized로 블럭 내에서 add()
-        List<NumberTicket> synchronizedAddTickets = new ArrayList<>(MAKE_TICKET_COUNT);
-        List<Runnable> synchronizedTicketTasks = new ArrayList<>(threadCount);
-
-        for (int i = 0; i < threadCount; i++) {
-            synchronizedTicketTasks.add(taskFactory.makeSynchronizedTicketTask(synchronizedAddTickets, countPerThread));
+        for (int i = 0; i < taskCount; i++) {
+            synchronizedTicketTasks.add(taskFactory.makeSynchronizedTicketTask(synchronizedAddTickets, workCountFor(i, taskCount, ticketCount)));
         }
 
-        double synchronizedAddDuration = performanceMeasurer.measure(() -> {
-            multiThreadRunner.execute(synchronizedTicketTasks);
-        });
-
-        boolean synchronizedAddIsValid = resultValidator.isValid(synchronizedAddTickets, MAKE_TICKET_COUNT);
+        ExecutionDuration synchronizedAddDuration = performanceMeasurer.measure(() -> multiThreadRunner.execute(synchronizedTicketTasks));
+        boolean synchronizedAddIsValid = resultValidator.isValid(synchronizedAddTickets, ticketCount);
 
         PerformanceResult synchronizedAddResult = new PerformanceResult(
                 "synchronized block control concurrency",
                 synchronizedAddDuration,
-                MAKE_TICKET_COUNT,
+                ticketCount,
                 synchronizedAddTickets.size(),
                 synchronizedAddIsValid,
                 multiThreadRunner
         );
 
         System.out.println(synchronizedAddResult.getResult());
+    }
 
+    private static void runAvoidSharedStateExperiment(
+            int ticketCount,
+            TaskFactory taskFactory,
+            PerformanceMeasurer performanceMeasurer,
+            ResultValidator resultValidator,
+            MultiThreadRunner multiThreadRunner
+    ) {
+        int taskCount = multiThreadRunner.getRecommendedTaskCount(ticketCount);
+        List<NumberTicket> avoidTickets = new ArrayList<>(ticketCount);
+        List<Callable<List<NumberTicket>>> avoidTicketTasks = new ArrayList<>(taskCount);
 
-
-        // copyOnWrite 방식, 쓰기에 부적절
-//        List<NumberTicket> copyOnWriteTickets = new CopyOnWriteArrayList<>();
-//        List<Runnable> copyOnWriteTasks = new ArrayList<>(threadCount);
-//
-//        for (int i = 0; i < threadCount; i++) {
-//            copyOnWriteTasks.add(taskFactory.makeTicketTask(copyOnWriteTickets, countPerThread));
-//        }
-//
-//        double copyOnWriteDuration = performanceMeasurer.measure(multiThreadRunner, copyOnWriteTasks);
-//
-//        boolean copyOnWriteIsValid = resultValidator.isValid(copyOnWriteTickets, MAKE_TICKET_COUNT);
-//
-//        PerformanceResult copyOnWriteResult = new PerformanceResult(
-//                "copy on write list control concurrency",
-//                copyOnWriteDuration,
-//                MAKE_TICKET_COUNT,
-//                copyOnWriteTickets.size(),
-//                copyOnWriteIsValid,
-//                multiThreadRunner
-//        );
-//
-//        System.out.println(copyOnWriteResult.getResult());
-
-
-
-        // 회피 방식
-        List<NumberTicket> avoidTickets = new ArrayList<>(MAKE_TICKET_COUNT);
-        List<Callable<List<NumberTicket>>> avoidTicketTasks = new ArrayList<>(threadCount);
-
-        for (int i = 0; i < threadCount; i++) {
-            avoidTicketTasks.add(taskFactory.makeTicketCallable(countPerThread));
+        for (int i = 0; i < taskCount; i++) {
+            avoidTicketTasks.add(taskFactory.makeTicketCallable(workCountFor(i, taskCount, ticketCount)));
         }
 
-        double avoidDuration = performanceMeasurer.measure(() -> {
-            avoidTickets.addAll(
-                    multiThreadRunner.executeAndCollect(avoidTicketTasks)
-            );
-        });
-
-        boolean avoidIsValid = resultValidator.isValid(avoidTickets, MAKE_TICKET_COUNT);
+        ExecutionDuration avoidDuration = performanceMeasurer.measure(() -> avoidTickets.addAll(
+                multiThreadRunner.executeAndCollect(avoidTicketTasks)
+        ));
+        boolean avoidIsValid = resultValidator.isValid(avoidTickets, ticketCount);
 
         PerformanceResult avoidResult = new PerformanceResult(
-                "multi thread avoid",
+                "multi thread avoid shared state",
                 avoidDuration,
-                MAKE_TICKET_COUNT,
+                ticketCount,
                 avoidTickets.size(),
                 avoidIsValid,
                 multiThreadRunner
         );
 
         System.out.println(avoidResult.getResult());
+    }
 
+    // 총 작업 수가 스레드 수로 나누어떨어지지 않아도 누락 없이 분배
+    private static int workCountFor(int taskIndex, int taskCount, int totalWorkCount) {
+        int baseCount = totalWorkCount / taskCount;
+        int remainder = totalWorkCount % taskCount;
 
+        if (taskIndex < remainder) {
+            return baseCount + 1;
+        }
 
-
-
-
-
-
-
-
-
+        return baseCount;
     }
 }

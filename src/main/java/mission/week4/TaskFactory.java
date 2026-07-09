@@ -16,8 +16,15 @@ public class TaskFactory {
         }
     }
 
+    private void validateTickets(List<NumberTicket> tickets) {
+        if (tickets == null) {
+            throw new IllegalArgumentException("티켓 목록은 null일 수 없습니다.");
+        }
+    }
+
     public Runnable makeTicketTask(List<NumberTicket> tickets, int count) {
 
+        validateTickets(tickets);
         validateCount(count);
 
         return () -> {
@@ -32,6 +39,7 @@ public class TaskFactory {
 
     public Runnable makeSynchronizedTicketTask(List<NumberTicket> tickets, int count) {
 
+        validateTickets(tickets);
         validateCount(count);
 
         return () -> {

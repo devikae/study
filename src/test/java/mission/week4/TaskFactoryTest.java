@@ -36,6 +36,15 @@ class TaskFactoryTest {
     }
 
     @Test
+    @DisplayName("makeTicketTask는 티켓 목록이 null이면 예외가 발생한다.")
+    void makeTicketTaskThrowsExceptionWhenTicketsIsNull() {
+        TaskFactory taskFactory = new TaskFactory();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> taskFactory.makeTicketTask(null, 1));
+    }
+
+    @Test
     @DisplayName("makeSynchronizedTicketTask는 생성 개수만큼 티켓을 추가한다.")
     void makeSynchronizedTicketTaskAddsTicketsByCount() {
         TaskFactory taskFactory = new TaskFactory();
@@ -55,6 +64,15 @@ class TaskFactoryTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> taskFactory.makeSynchronizedTicketTask(tickets, -1));
+    }
+
+    @Test
+    @DisplayName("makeSynchronizedTicketTask는 티켓 목록이 null이면 예외가 발생한다.")
+    void makeSynchronizedTicketTaskThrowsExceptionWhenTicketsIsNull() {
+        TaskFactory taskFactory = new TaskFactory();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> taskFactory.makeSynchronizedTicketTask(null, 1));
     }
 
     @Test

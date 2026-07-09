@@ -1,24 +1,24 @@
 package mission.week4;
 
 public class PerformanceResult {
-    private final double durationMillis;
+    private final ExecutionDuration duration;
     private final int expectedCount;
     private final int actualCount;
     private final boolean isSuccess;
     private final String threadName;
     String experimentName;
 
-    public PerformanceResult(String experimentName, double duration, int expectedCount, int actualCount, boolean success, ThreadRunner threadRunner) {
+    public PerformanceResult(String experimentName, ExecutionDuration duration, int expectedCount, int actualCount, boolean success, ThreadRunner threadRunner) {
         this.experimentName = experimentName;
         this.threadName = threadRunner.getName();
-        this.durationMillis = duration;
+        this.duration = duration;
         this.expectedCount = expectedCount;
         this.actualCount = actualCount;
         this.isSuccess = success;
     }
 
     public double getDuration() {
-        return durationMillis;
+        return duration.toMillis();
     }
 
     public int getExpectedCount() {
@@ -43,7 +43,7 @@ public class PerformanceResult {
             %s 성능 측정 결과
             ====================================================
             성공 여부 : %s
-            싱글/멀티 : %s
+            실행/메서드 : %s
             실행 시간 : %.6f ms
             기대 개수 : %,d
             실제 개수 : %,d
@@ -52,10 +52,9 @@ public class PerformanceResult {
                 experimentName,
                 isSuccess ? "성공" : "실패",
                 threadName,
-                durationMillis,
+                duration.toMillis(),
                 expectedCount,
                 actualCount
         );
     }
-
 }

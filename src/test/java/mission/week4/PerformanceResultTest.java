@@ -18,7 +18,7 @@ class PerformanceResultTest {
 
         PerformanceResult result = new PerformanceResult(
                 "test experiment",
-                12.345,
+                ExecutionDuration.fromNanos(12_345_000),
                 1000,
                 900,
                 false,
@@ -39,7 +39,7 @@ class PerformanceResultTest {
 
         PerformanceResult result = new PerformanceResult(
                 "test experiment",
-                12.345,
+                ExecutionDuration.fromNanos(12_345_000),
                 1000,
                 900,
                 true,

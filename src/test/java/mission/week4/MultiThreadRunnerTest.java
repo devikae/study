@@ -61,6 +61,23 @@ class MultiThreadRunnerTest {
     }
 
     @Test
+    @DisplayName("execute는 Future 대기 중 인터럽트가 발생하면 인터럽트 상태를 복구한다.")
+    void executeRestoresInterruptStatus() {
+        MultiThreadRunner runner = new MultiThreadRunner();
+
+        Thread.currentThread().interrupt();
+
+        try {
+            assertThrows(IllegalStateException.class,
+                    () -> runner.execute(List.of(() -> {
+                    })));
+            assertEquals(true, Thread.currentThread().isInterrupted());
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    @Test
     @DisplayName("executeAndCollect는 작업 목록이 null이면 예외가 발생한다.")
     void executeAndCollectThrowsExceptionWhenTasksIsNull() {
         MultiThreadRunner runner = new MultiThreadRunner();
@@ -91,5 +108,21 @@ class MultiThreadRunnerTest {
         List<NumberTicket> result = runner.executeAndCollect(tasks);
 
         assertEquals(10, result.size());
+    }
+
+    @Test
+    @DisplayName("executeAndCollect는 Future 대기 중 인터럽트가 발생하면 인터럽트 상태를 복구한다.")
+    void executeAndCollectRestoresInterruptStatus() {
+        MultiThreadRunner runner = new MultiThreadRunner();
+
+        Thread.currentThread().interrupt();
+
+        try {
+            assertThrows(IllegalStateException.class,
+                    () -> runner.executeAndCollect(List.of(() -> new ArrayList<>())));
+            assertEquals(true, Thread.currentThread().isInterrupted());
+        } finally {
+            Thread.interrupted();
+        }
     }
 }

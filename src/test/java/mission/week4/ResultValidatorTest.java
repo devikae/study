@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -43,5 +44,14 @@ class ResultValidatorTest {
         boolean result = validator.isValid(tickets, 3);
 
         assertFalse(result);
+    }
+
+    @Test
+    @DisplayName("isValid는 티켓 목록이 null이면 예외가 발생한다.")
+    void isValidThrowsExceptionWhenTicketsIsNull() {
+        ResultValidator validator = new ResultValidator();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> validator.isValid(null, 3));
     }
 }

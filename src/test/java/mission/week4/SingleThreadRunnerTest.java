@@ -53,4 +53,21 @@ class SingleThreadRunnerTest {
         assertThrows(IllegalStateException.class,
                 () -> runner.execute(tasks));
     }
+
+    @Test
+    @DisplayName("execute는 Future 대기 중 인터럽트가 발생하면 인터럽트 상태를 복구한다.")
+    void executeRestoresInterruptStatus() {
+        SingleThreadRunner runner = new SingleThreadRunner();
+
+        Thread.currentThread().interrupt();
+
+        try {
+            assertThrows(IllegalStateException.class,
+                    () -> runner.execute(List.of(() -> {
+                    })));
+            assertEquals(true, Thread.currentThread().isInterrupted());
+        } finally {
+            Thread.interrupted();
+        }
+    }
 }

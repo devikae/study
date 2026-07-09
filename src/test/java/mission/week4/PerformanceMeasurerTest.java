@@ -36,9 +36,9 @@ class PerformanceMeasurerTest {
     void measureReturnsDurationMillis() {
         PerformanceMeasurer measurer = new PerformanceMeasurer();
 
-        double duration = measurer.measure(() -> {
+        ExecutionDuration duration = measurer.measure(() -> {
         });
 
-        assertTrue(duration >= 0);
+        assertTrue(duration.toMillis() >= 0);
     }
 }

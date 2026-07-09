@@ -1,4 +1,4 @@
-# lottoMaker v4
+﻿# lottoMaker v4
 > 싱글/멀티 스레드로 대량 생성 속도 비교
 
 ## 1. 요구사항
@@ -8,22 +8,19 @@
 - 공유 컬렉션 사용할 때 발생할 수 있는 문제 재현
 
 ## 2. 측정 기준 
-- 기준 데이터: `1_000_000건`
+- 기준 데이터: `10_000_000건`
 - 시간 단위:  ms
-- 측정 범위: 100만 건의 List 완성 까지
+- 측정 범위: 1천만 건의 List 완성 까지
 
-            $results += [pscustomobject]@{ Run = $i; Name = $currentName; Duration = [double]$Matches[1] }
-        }
-  }
-  }
-  $results | Sort-Object Name, Run | Format-Table -AutoSize
 ## 3. 성능 측정 결과
 
-- 기준 데이터: `1_000_000`건
-- 스레드 수: `4`
+- 기준 데이터: `10_000_000`건
+- 스레드 수: 실행 환경의 CPU 코어 수 기준
 - 시간 단위: ms
 - 측정 횟수: 10회
 - `multi thread not control concurrency`는 동시성 제어를 하지 않아 실제 개수가 기대 개수와 다를 수 있다.
+
+### 10,000,000건 측정 결과
 
 <table>
   <thead>
@@ -44,7 +41,83 @@
   </thead>
   <tbody>
     <tr>
-      <td rowspan="4">1,000,000건</td>
+      <td rowspan="4">10,000,000건</td>
+      <td>single thread</td>
+      <td align="right">3471.6064ms</td>
+      <td align="right">3640.5818ms</td>
+      <td align="right">3511.1265ms</td>
+      <td align="right">3597.0774ms</td>
+      <td align="right">3540.9949ms</td>
+      <td align="right">3573.7577ms</td>
+      <td align="right">3669.5044ms</td>
+      <td align="right">3676.7203ms</td>
+      <td align="right">3579.5023ms</td>
+      <td align="right">3635.5234ms</td>
+    </tr>
+    <tr style="background-color: #fff1f1;">
+      <td><strong>multi thread not control concurrency (fail)</strong></td>
+      <td align="right">4455.3860ms</td>
+      <td align="right">4332.8199ms</td>
+      <td align="right">4160.0257ms</td>
+      <td align="right">4128.5547ms</td>
+      <td align="right">4156.3104ms</td>
+      <td align="right">4545.2390ms</td>
+      <td align="right">4424.7201ms</td>
+      <td align="right">4430.7944ms</td>
+      <td align="right">4356.4362ms</td>
+      <td align="right">4367.2180ms</td>
+    </tr>
+    <tr>
+      <td>synchronized block control concurrency</td>
+      <td align="right">4563.4035ms</td>
+      <td align="right">4506.9750ms</td>
+      <td align="right">4592.8005ms</td>
+      <td align="right">4332.2791ms</td>
+      <td align="right">4529.9589ms</td>
+      <td align="right">4602.8482ms</td>
+      <td align="right">4576.1769ms</td>
+      <td align="right">4632.3736ms</td>
+      <td align="right">4540.5239ms</td>
+      <td align="right">4621.8391ms</td>
+    </tr>
+    <tr>
+      <td>multi thread avoid shared state</td>
+      <td align="right">4418.8284ms</td>
+      <td align="right">4272.7117ms</td>
+      <td align="right">4520.1797ms</td>
+      <td align="right">4431.9968ms</td>
+      <td align="right">4231.7341ms</td>
+      <td align="right">4244.3593ms</td>
+      <td align="right">4464.9818ms</td>
+      <td align="right">4348.2273ms</td>
+      <td align="right">4399.3050ms</td>
+      <td align="right">4124.6223ms</td>
+    </tr>
+  </tbody>
+</table>
+
+### 1,000,000건 이전 측정 결과
+
+<table>
+  <thead>
+    <tr>
+      <th>기준</th>
+      <th>방식</th>
+      <th>1회차</th>
+      <th>2회차</th>
+      <th>3회차</th>
+      <th>4회차</th>
+      <th>5회차</th>
+      <th>6회차</th>
+      <th>7회차</th>
+      <th>8회차</th>
+      <th>9회차</th>
+      <th>10회차</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="4">1,000,000건<br>(이전 측정 결과)</td>
       <td>single thread</td>
       <td align="right">392.4203ms</td>
       <td align="right">396.4377ms</td>
@@ -198,6 +271,12 @@
 
 작업이 싱글 스레드인지, 멀티 스레드인지, 어떤 컬렉션을 사용하는지 알지 못한다.
 
+### ExecutionDuration
+`PerformanceMeasurer`가 측정한 실행 시간을 보관하는 값 객체.
+
+시간 측정값을 단순 `double`로 바로 반환하지 않고, 실행 시간이라는 의미를 가진 객체로 먼저 보관한다.  
+출력하거나 비교할 때는 `toMillis()`를 호출해 밀리초 단위의 `double` 값으로 변환한다.
+
 ### ResultValidator
 실험 결과가 기대한 개수와 일치하는지 검증하는 객체
 `실제 생성된 티켓 개수 == 기대한 티켓 개수`
@@ -215,7 +294,7 @@
 ### 단일 스레드 방식
 
 단일 스레드 방식은 `SingleThreadRunner`로 구현했다.  
-`TaskFactory`가 `1,000,000`개의 로또 티켓을 생성하는 `Runnable` 작업을 만들고, `SingleThreadRunner`는 이 작업을 하나의 스레드에서 실행한다.
+`TaskFactory`가 `10,000,000`개의 로또 티켓을 생성하는 `Runnable` 작업을 만들고, `SingleThreadRunner`는 이 작업을 하나의 스레드에서 실행한다.
 
 작업 실행에는 `Executors.newSingleThreadExecutor()`를 사용했다.  
 작업을 제출한 뒤 `Future.get()`을 호출해 티켓 생성이 모두 끝날 때까지 기다린다.
@@ -252,22 +331,23 @@
 이번 실험에서는 싱글스레드와 멀티스레드 실행 방식을 비교해야 했기 때문에, 스레드 실행과 완료 대기를 일관되게 처리하기 위해 `ExecutorService`를 사용했다.
 
 ## 9. 결론
-`1,000,000건`을 생성할 때는 멀티스레드 방식이 단일 스레드보다 빠르게 측정되었다.  
-하지만 이것이 멀티스레드가 항상 더 빠르다는 의미는 아니다.
+`10,000,000건` 측정에서는 단일 스레드 방식이 멀티스레드 방식보다 더 빠르게 측정되었다.  
+이 결과는 멀티스레드가 항상 더 빠르지 않다는 점을 보여준다.
 
-동시성 제어를 하지 않은 멀티스레드 방식은 실행 시간은 짧았지만, 실제 생성 개수가 기대 개수와 달라 실패한 결과였고 
-따라서 성능을 비교할 때는 실행 시간뿐 아니라 결과가 정확한지도 함께 확인해야 한다.
+이번 작업은 로또 티켓 하나를 만들 때마다 `HashSet`, `NumberTicket`, `TreeSet` 같은 객체를 계속 생성한다.  
+또한 난수 생성에 `Math.random()`을 사용하고 있는데, `Math.random()`은 멀티스레드 환경에서 공유 난수 생성기로 인한 경합이 발생할 수 있다.  
+이 경우 여러 스레드로 작업을 나누어도 난수 생성이나 객체 생성 비용 때문에 기대한 만큼 병렬 처리 효과가 나지 않을 수 있다.
 
-`synchronized` 방식은 공유 `ArrayList`에 접근하는 구간을 보호해 정확한 결과를 만들었다.  
-하지만 `add`할 때마다 락을 사용하므로 스레드들이 대기하는 시간이 생긴다.  
-작업에 비해 동기화 비용이 커지면 멀티스레드의 이점은 줄어들 수 있다.
+동시성 제어를 하지 않은 멀티스레드 방식은 공유 `ArrayList`에 여러 스레드가 동시에 접근하므로 실제 생성 개수가 기대 개수와 달라진다.  
+따라서 실행 시간이 빠르거나 느린 것과 별개로, 결과가 정확하지 않으므로 성능 비교 대상으로 보기 어렵다.
 
-공유 상태를 회피하는 방식은 각 스레드가 자기 리스트에 티켓을 생성한 뒤 마지막에 병합했다.  
-공유 리스트에 동시에 접근하지 않기 때문에 락 경쟁을 줄일 수 있었고, 이번 실험에서는 가장 빠르게 측정되었다.
+`synchronized` 방식은 정확한 결과를 만들지만, `add()`를 할 때마다 락을 획득한다.  
+결국 리스트에 추가하는 구간은 한 번에 하나의 스레드만 접근할 수 있으므로 병렬 처리 이점이 줄어든다.  
+작업마다 락을 잡는 비용도 반복해서 발생한다.
 
-추가로 `1,000건`, `10,000건`처럼 작은 작업량도 측정했다.  
-작업량이 작을 때는 스레드 풀 생성, 작업 제출, 완료 대기 같은 부가 비용의 영향이 상대적으로 커진다.  
-그래서 일부 구간에서는 단일 스레드가 멀티스레드 방식보다 더 빠르게 측정되었다.
+공유 상태를 피하는 방식은 각 스레드가 자기 지역 리스트에 티켓을 만든 뒤 마지막에 병합한다.  
+공유 리스트 경합은 줄일 수 있지만, 각 지역 리스트 생성 비용과 최종 `addAll()` 병합 비용이 추가된다.  
+이번 측정에서는 이 추가 비용과 난수 생성, 객체 생성, GC 비용이 합쳐져 단일 스레드보다 느리게 측정된 것으로 볼 수 있다.
 
-결국 멀티스레드의 성능은 단순히 스레드 수를 늘린다고 좋아지는 것이 아니다.  
-작업을 나누기 쉬운지, 공유 상태가 얼마나 적은지, 동기화 비용이 얼마나 큰지에 따라 결과가 달라진다.업을 잘 나눌 수 있으며, 공유 상태로 인한 비용이 작을 때 효과가 커진다.
+결국 멀티스레드 성능은 단순히 스레드 수를 늘린다고 좋아지는 것이 아니다.  
+작업이 충분히 무거운지, 공유 자원 접근이 적은지, 락 비용과 병합 비용이 작은지, 스레드별 작업이 독립적인지에 따라 결과가 달라진다.  
