@@ -15,7 +15,7 @@ class NumberGeneratorTest {
     void generatorCreatesSixNumbers() {
         NumberGenerator generator = new NumberGenerator();
 
-        NumberTicket ticket = generator.run(new HashSet<>());
+        NumberTicket ticket = generator.makeTicket(new HashSet<>());
 
         assertEquals(6, ticket.getNumbers().size());
     }
@@ -25,7 +25,7 @@ class NumberGeneratorTest {
     void generatorCreatesNumbersBetween1And45() {
         NumberGenerator generator = new NumberGenerator();
 
-        NumberTicket ticket = generator.run(new HashSet<>());
+        NumberTicket ticket = generator.makeTicket(new HashSet<>());
 
         for (NumberValue number : ticket.getNumbers()) {
             assertTrue(number.getValue() >= 1);
@@ -39,7 +39,7 @@ class NumberGeneratorTest {
         NumberGenerator generator = new NumberGenerator();
 
         for (int i = 0; i < 100; i++) {
-            NumberTicket ticket = generator.run(new HashSet<>());
+            NumberTicket ticket = generator.makeTicket(new HashSet<>());
 
             assertEquals(6, ticket.getNumbers().size());
 

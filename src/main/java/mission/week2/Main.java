@@ -15,7 +15,7 @@ public class Main {
         InputParser inputParser = new InputParser();
         TicketWallet myWallet = new TicketWallet();
         NumberGenerator generator = new NumberGenerator();
-        NumberTicket winningNumber = generator.run(new HashSet<>());
+        NumberTicket winningNumber = generator.makeTicket(new HashSet<>());
         NumberValue bonusNumber = generateBonusNumber(winningNumber);
         LottoMatcher lottoMatcher = new LottoMatcher(winningNumber, bonusNumber);
 

@@ -12,7 +12,7 @@ public class NumberGenerator {
 
     public static final int SIZE = 6;
 
-    public NumberTicket run(Set<NumberValue> lotto){
+    public NumberTicket makeTicket(Set<NumberValue> lotto){
 
         while (lotto.size() < SIZE){
             lotto.add(NumberValue.getInstance((int) (Math.random() * 45) + 1));
@@ -21,16 +21,16 @@ public class NumberGenerator {
         return new NumberTicket(lotto);
     }
 
-    public List<NumberTicket> makeTickets(int ea){
+    public List<NumberTicket> makeTickets(int makeTicketCount){
 
-        if (ea < 0) {
-            throw new IllegalArgumentException("티켓 개수는 0 이상이어야 합니다.");
+        if (makeTicketCount < 0) {
+            throw new IllegalArgumentException("생성할 티켓 개수는 0 이상이어야 합니다.");
         }
 
-        List<NumberTicket> tickets = new ArrayList<>(ea);
+        List<NumberTicket> tickets = new ArrayList<>(makeTicketCount);
 
-        for(int i = 1; i <= ea; i++){
-            NumberTicket ticket = run(new HashSet<>());
+        for(int i = 1; i <= makeTicketCount; i++){
+            NumberTicket ticket = makeTicket(new HashSet<>());
             tickets.add(ticket);
         }
 
